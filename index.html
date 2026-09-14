@@ -16,7 +16,7 @@
 <style>
 :root{
   --bg:#f8f5f1;--card:#fff;--text:#2c2c2c;--muted:#6b5b53;--border:#e2d7ce;
-  --map:#1a73e8;--radius:14px;--radius-sm:10px;
+  --map:#1a73e8;--copy:#16a34a;--radius:14px;--radius-sm:10px;
   --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -69,6 +69,7 @@ body[data-city="osaka"]{--accent:#d97a34;--accent-soft:#fce5d0;--accent-light:#f
 .mini-nav button.today-btn{background:var(--accent);color:#fff}
 
 .weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.weather-grid.single{grid-template-columns:1fr}
 .weather-card{background:var(--accent-light);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 11px;transition:background .5s;min-height:95px}
 .weather-card .city{font-size:.8rem;font-weight:700;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .weather-days{display:flex;gap:4px;justify-content:space-between}
@@ -79,6 +80,9 @@ body[data-city="osaka"]{--accent:#d97a34;--accent-soft:#fce5d0;--accent-light:#f
 .wd .t-min{color:var(--muted);font-size:.65rem;display:block}
 
 h2{font-size:1.15rem;margin:22px 0 12px;color:var(--accent);border-bottom:2px solid var(--accent-soft);padding-bottom:6px;display:flex;align-items:center;gap:8px;font-weight:800}
+h2.collapsible{cursor:pointer;user-select:none}
+h2.collapsible .section-chevron{margin-left:auto;transition:transform .3s ease;width:1em;height:1em;stroke-width:2.2}
+h2.collapsible.collapsed .section-chevron{transform:rotate(-90deg)}
 h3{font-size:1rem;margin:0 0 10px;color:var(--accent);line-height:1.35;display:flex;align-items:center;gap:6px;font-weight:800}
 h4{font-size:.92rem;color:var(--accent);margin:12px 0 6px;display:flex;align-items:center;gap:6px;font-weight:700}
 
@@ -102,6 +106,12 @@ p{font-size:.9rem;margin-bottom:8px}
 .map-btn{display:inline-flex;align-items:center;gap:5px;background:var(--map);color:#fff;padding:8px 12px;border-radius:20px;font-size:.75rem;font-weight:600;text-decoration:none;margin:4px 6px 4px 0;min-height:34px;line-height:1.2}
 .map-btn:active{background:#0f5bbd}
 .map-btn .ico{width:.9em;height:.9em}
+
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;background:var(--accent-light);color:var(--accent);border:1px solid var(--border);padding:6px 10px;border-radius:16px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:32px;margin-left:6px;transition:background .15s;vertical-align:middle}
+.copy-btn:active{background:var(--accent-soft)}
+.copy-btn.copied{background:var(--copy);color:#fff;border-color:var(--copy)}
+.copy-btn .ico{width:.85em;height:.85em}
+
 .map-frame{width:100%;height:180px;border:0;border-radius:var(--radius-sm);margin:10px 0 4px;display:block;background:#eee}
 .map-cap{font-size:.72rem;color:var(--muted);margin-bottom:8px;font-style:italic;display:flex;align-items:center;gap:5px}
 
@@ -124,7 +134,6 @@ p{font-size:.9rem;margin-bottom:8px}
 .badge-today{display:inline-block;background:var(--accent);color:#fff;font-size:.62rem;padding:3px 9px;border-radius:10px;font-weight:800;letter-spacing:.6px;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(166,58,58,.5)}50%{box-shadow:0 0 0 6px rgba(166,58,58,0)}}
 
-/* КЛЮЧЕВОЙ ФИКС — секции вне городов тоже видны */
 .fade-card{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
 .fade-card.visible{opacity:1;transform:translateY(0)}
 @media (prefers-reduced-motion: reduce){
@@ -133,6 +142,7 @@ p{font-size:.9rem;margin-bottom:8px}
 }
 
 .food-block{background:#fff;border-radius:var(--radius);padding:6px 14px;margin-bottom:14px;border:1px solid var(--border)}
+.food-block.collapsed{display:none}
 .food-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border)}
 .food-item:last-child{border-bottom:none}
 .food-emoji{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:1rem;line-height:1}
@@ -166,6 +176,9 @@ p{font-size:.9rem;margin-bottom:8px}
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:12px 20px;border-radius:24px;font-size:.85rem;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:9999;display:none;align-items:center;gap:10px;cursor:pointer;max-width:90%}
 .update-toast.show{display:flex}
 .update-toast button{background:rgba(255,255,255,.25);border:none;color:#fff;padding:5px 12px;border-radius:14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.78rem}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:11px 18px;border-radius:22px;font-size:.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
 
 .weather-loading{display:flex;align-items:center;justify-content:center;padding:20px;color:var(--muted);font-size:.85rem;gap:8px}
 .weather-loading::before{content:"";width:16px;height:16px;border-radius:50%;border:2px solid var(--accent-soft);border-top-color:var(--accent);animation:spin 1s linear infinite}
@@ -236,6 +249,8 @@ p{font-size:.9rem;margin-bottom:8px}
 <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-6 8 6v11M8 21v-7h8v7M8 14h8"/></symbol>
 <symbol id="i-bag" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="14" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></symbol>
 <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
 </svg>
 
 <div class="wrap">
@@ -269,9 +284,8 @@ p{font-size:.9rem;margin-bottom:8px}
 
 <nav class="mini-nav"></nav>
 
-<!-- ПОГОДА -->
 <section class="sec-anchor" id="weather-sec">
-<h2><svg class="ico ico-lg"><use href="#i-sun"/></svg>Погода · 5 дней</h2>
+<h2><svg class="ico ico-lg"><use href="#i-sun"/></svg>Погода <span id="weather-city-name" style="font-weight:600;color:var(--muted);font-size:.9rem"></span></h2>
 <div class="card fade-card">
   <div id="weather">
     <div class="weather-loading">Загружаем прогноз…</div>
@@ -286,7 +300,8 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="card fade-card">
 <div style="font-size:.9rem;line-height:1.6">
 <strong>Ano Hotel Asakusa</strong><br>
-2-8-1 Asakusa, Taito-ku, Tokyo 111-0032<br>
+<span id="addr-tokyo">2-8-1 Asakusa, Taito-ku, Tokyo 111-0032</span>
+<button class="copy-btn" onclick="copyAddr('addr-tokyo', this)"><svg class="ico"><use href="#i-copy"/></svg>Копировать</button><br>
 Станция Асакуса — 5 мин пешком<br>
 <strong>18.11 – 22.11</strong> (4 ночи) · <strong>30.11 – 01.12</strong> (1 ночь)
 </div>
@@ -318,7 +333,7 @@ p{font-size:.9rem;margin-bottom:8px}
 <p><strong>15:00</strong> — Прилёт в аэропорт Токио. Трансфер в отель. Заселение.</p>
 <p><strong>17:00 · Вечерняя прогулка по Асакусе:</strong></p>
 <ul>
-<li><strong>Храм Сэнсо-дзи</strong> — старейший буддийский храм Токио. Главный зал открыт <strong>6:30–17:00</strong> (октябрь–март). Территория — 24/7. Вход бесплатный.</li>
+<li><strong>Храм Сэнсо-дзи</strong> — старейший буддийский храм Токио. Главный зал открыт <strong>6:30–17:00</strong>. Территория — 24/7. Вход бесплатный.</li>
 <li><strong>Улица Накамисэ</strong> — торговая улица длиной 250 м с местными сладостями.</li>
 <li><strong>Ворота Каминаримон</strong> — знаменитый вход с гигантским красным фонарём.</li>
 </ul>
@@ -382,7 +397,6 @@ p{font-size:.9rem;margin-bottom:8px}
 <ul>
 <li>Адрес: 11 Naitomachi, Shinjuku-ku. 10 минут пешком от станции Синдзюку.</li>
 <li>Часы: <strong>9:00–16:00</strong> (последний вход 15:30). Закрыт по понедельникам. Вход: ¥500.</li>
-<li>Японский сад, английский ландшафтный сад, французский регулярный сад.</li>
 </ul>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Ueno+Park+Tokyo&destination=Shinjuku+Gyoen&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Синдзюку Гёэн</a>
 <p><strong>17:00–21:00 · Район Сибуя</strong></p>
@@ -476,7 +490,7 @@ p{font-size:.9rem;margin-bottom:8px}
 <h4><svg class="ico"><use href="#i-torii"/></svg> Вариант А · Камакура</h4>
 <ul>
 <li><strong>Как добраться:</strong> JR Yokosuka Line от станции Токио до Камакуры — около 55–60 мин, ¥950.</li>
-<li><strong>Котоку-ин (Большой Будда)</strong> — 11-метровая бронзовая статуя. 8:00–17:30 (окт–март: 8:00–17:00). ¥300.</li>
+<li><strong>Котоку-ин (Большой Будда)</strong> — 11-метровая бронзовая статуя. 8:00–17:30. ¥300.</li>
 <li><strong>Храм Хасэдэра</strong> — осенние краски, вид на океан. ¥400.</li>
 <li><strong>Храм Хококудзи</strong> — бамбуковая роща с чайной церемонией матча (¥600–1,200).</li>
 <li><strong>Поезд Enoden</strong> — живописная железная дорога, дневной билет ¥800.</li>
@@ -519,7 +533,7 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-body">
 <div class="day-title"><h3>Отъезд в Киото</h3>
 <span class="tag">Синкансэн</span><span class="tag">Переезд</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 9:00–9:30, чтобы успеть на синкансэн до полудня.</div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 9:00–9:30.</div>
 <p><strong>Утро:</strong> Выезд из отеля Ano Hotel Asakusa.</p>
 <p><strong>Синкансэн до Киото:</strong> от станции Токио или Уэно на JR Shinkansen Hikari (2 ч 40 мин, ¥14,000). Места справа (D, E) — вид на Фудзи.</p>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Ano+Hotel+Asakusa&destination=Tokyo+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до станции Токио</a>
@@ -544,7 +558,7 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-body">
 <div class="day-title"><h3>Возвращение в Токио</h3>
 <span class="tag">Синкансэн</span><span class="tag">Прощальный вечер</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Утренний синкансэн из Осаки позволит приехать к обеду.</div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00.</div>
 <p><strong>Утро:</strong> Синкансэн из Осаки в Токио (2 ч 30 мин, ¥14,400).</p>
 <p><strong>Днём:</strong> заселение в <strong>Ano Hotel Asakusa</strong>.</p>
 <p><strong>Вечер:</strong> последние покупки, сувениры, прощальный ужин.</p>
@@ -556,7 +570,6 @@ p{font-size:.9rem;margin-bottom:8px}
 <li><strong>Хоппи</strong> — попробуйте в изакаях на <strong>Hoppy Street</strong>.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Asakusa+Imahan+Sukiyaki" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Asakusa Imahan</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Hoppy+Street+Asakusa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Hoppy Street</a>
 </div>
 <div class="tip"><strong>Совет по сувенирам:</strong> <em>Don Quijote</em> или <em>Tokyo Solamachi</em>. Для качественных подарков: <em>Mitsukoshi</em> или <em>Takashimaya</em>.</div>
 </div>
@@ -572,17 +585,12 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-body">
 <div class="day-title"><h3>Вылет из Токио</h3>
 <span class="tag">Вылет</span><span class="tag">CZ648</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 5:30–6:30 (по времени рейса). Если рейс после 15:00 — можно встать в 7:30.</div>
-<p><strong>Утро:</strong> выезд из отеля. В зависимости от времени рейса:</p>
-<ul>
-<li><strong>Если рейс после 15:00:</strong> рынок Тоёсу для суши-завтрака (открыт с 5:00, рестораны до 14:00).</li>
-<li><strong>Если рейс рано утром:</strong> прямой трансфер в аэропорт.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Toyosu+Market+Tokyo" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Рынок Тоёсу</a>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 5:30–6:30 (по времени рейса).</div>
+<p><strong>Утро:</strong> выезд из отеля. Если рейс после 15:00 — рынок Тоёсу для суши-завтрака (с 5:00).</p>
 <p><strong>Трансфер в аэропорт:</strong></p>
 <ul>
-<li><strong>В Нариту:</strong> Keisei Skyliner от Уэно/Асакусы — 45 мин, ¥2,470.</li>
-<li><strong>В Ханэду:</strong> Keikyu Line или Tokyo Monorail — 40–50 мин, ¥500–800.</li>
+<li><strong>В Нариту:</strong> Keisei Skyliner — 45 мин, ¥2,470.</li>
+<li><strong>В Ханэду:</strong> Keikyu Line — 40–50 мин, ¥500–800.</li>
 </ul>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Ano+Hotel+Asakusa&destination=Narita+Airport&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Нариты</a>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Ano+Hotel+Asakusa&destination=Haneda+Airport&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Ханэды</a>
@@ -590,8 +598,11 @@ p{font-size:.9rem;margin-bottom:8px}
 </div>
 </div>
 
-<h2><svg class="ico ico-lg"><use href="#i-food"/></svg>Токио · Питание</h2>
-<div class="food-block fade-card">
+<h2 class="collapsible" data-target="tokyo-food" onclick="toggleSection(this)">
+<svg class="ico ico-lg"><use href="#i-food"/></svg>Токио · Питание
+<svg class="ico section-chevron"><use href="#i-chevron"/></svg>
+</h2>
+<div class="food-block fade-card" id="tokyo-food">
 <div class="food-item"><div class="food-emoji">🍤</div><div class="food-info"><div class="food-name">Тэндон</div><div class="food-desc">Рис с темпурой · Daikokuya (с 1887)</div></div><div class="food-price">¥2,000–3,500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Daikokuya+Tempura+Asakusa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍜</div><div class="food-info"><div class="food-name">Соба</div><div class="food-desc">Гречневая лапша · Namiki Yabu Soba</div></div><div class="food-price">¥800–1,800</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Namiki+Yabu+Soba+Asakusa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍱</div><div class="food-info"><div class="food-name">Сукияки</div><div class="food-desc">Говядина в соевом соусе · Asakusa Imahan</div></div><div class="food-price">¥5,000–10,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Asakusa+Imahan" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
@@ -609,14 +620,15 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="card fade-card">
 <div style="font-size:.9rem;line-height:1.6">
 <strong>Sotetsu Fresa Inn Kyoto-Kiyomizu Gojo</strong><br>
-391-1 Shiogamacho, Shimogyo-ku, Kyoto 600-8103<br>
+<span id="addr-kyoto">391-1 Shiogamacho, Shimogyo-ku, Kyoto 600-8103</span>
+<button class="copy-btn" onclick="copyAddr('addr-kyoto', this)"><svg class="ico"><use href="#i-copy"/></svg>Копировать</button><br>
 Станция Kiyomizu-Gojo (Keihan) — 1 мин<br>
 <strong>22.11 – 25.11</strong> · 3 ночи
 </div>
 <div style="margin-top:10px">
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Sotetsu+Fresa+Inn+Kyoto+Kiyomizu+Gojo" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Отель на карте</a>
 </div>
-<div class="tip"><strong>Почему здесь:</strong> прямая линия Keihan к Гиону, Киёмидзу-дэра и Фусими Инари. Рядом станция метро Gojo.</div>
+<div class="tip"><strong>Почему здесь:</strong> прямая линия Keihan к Гиону, Киёмидзу-дэра и Фусими Инари.</div>
 </div>
 
 <h2><svg class="ico ico-lg"><use href="#i-route"/></svg>Киото · Маршрут</h2>
@@ -630,13 +642,13 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-body">
 <div class="day-title"><h3>Прибытие · Киёмидзу-дэра · Хигасияма</h3>
 <span class="tag">Синкансэн</span><span class="tag">Киёмидзу-дэра</span><span class="tag">Подсветка</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд из отеля в Токио к 9:00–9:30.</div>
-<p><strong>Утро:</strong> Синкансэн из Токио в Киото (2 ч 40 мин, ¥14,000). Прибытие на станцию Киото.</p>
-<p><strong>Днём:</strong> заселение в отель <strong>Sotetsu Fresa Inn Kyoto-Kiyomizu Gojo</strong>.</p>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00.</div>
+<p><strong>Утро:</strong> Синкансэн из Токио в Киото (2 ч 40 мин, ¥14,000).</p>
+<p><strong>Днём:</strong> заселение в <strong>Sotetsu Fresa Inn Kyoto-Kiyomizu Gojo</strong>.</p>
 <p><strong>16:00–18:00 · Киёмидзу-дэра</strong></p>
 <ul>
-<li>Адрес: 1-294 Kiyomizu, Higashiyama-ku, Kyoto 605-0862.</li>
-<li>Часы: <strong>6:00–18:00</strong>. С <strong>21 по 30 ноября</strong> — специальный вечерний просмотр до <strong>21:30</strong>.</li>
+<li>Адрес: <span id="addr-kiyomizu">1-294 Kiyomizu, Higashiyama-ku, Kyoto 605-0862</span><button class="copy-btn" onclick="copyAddr('addr-kiyomizu', this)"><svg class="ico"><use href="#i-copy"/></svg></button></li>
+<li>Часы: <strong>6:00–18:00</strong>. С 21 по 30 ноября — вечерний просмотр до <strong>21:30</strong>.</li>
 <li>Вход: ¥500 (взрослый), ¥250 (ребёнок).</li>
 <li>Деревянная веранда над склоном, вид на город. В сезон момидзи — вечерняя подсветка.</li>
 </ul>
@@ -647,7 +659,6 @@ p{font-size:.9rem;margin-bottom:8px}
 <ul>
 <li><strong>Юдофу</strong> — варёный тофу в бульоне комбу.</li>
 <li><strong>О-бадзай</strong> — киотские домашние закуски в изакая Гиона.</li>
-<li><strong>Маруяма-парк</strong> — вечерняя прогулка, подсветка храма Ясака.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Gion+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Гион</a>
 </div>
@@ -655,9 +666,9 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 1 — Киёмидзу-дэра и Хигасияма</div>
 <div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если вечером дождь:</strong>
 <ul>
-<li>Киёмидзу-дэра под дождём и с вечерней подсветкой — особенно атмосферно.</li>
-<li>Альтернатива: <em>Gion Corner</em> — часовая программа традиционных искусств: чайная церемония, икебана, танец майко, игра на кото. ¥4,000.</li>
-<li><em>Рынок Нисики</em> — крытая торговая улица, работает до 18:00.</li>
+<li>Киёмидзу под дождём с подсветкой — атмосферно.</li>
+<li>Альтернатива: <em>Gion Corner</em> — традиционные искусства, ¥4,000.</li>
+<li><em>Рынок Нисики</em> — крытая улица, работает до 18:00.</li>
 </ul>
 </div>
 </div>
@@ -672,53 +683,33 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-maple"/></svg><svg class="ico"><use href="#i-torii"/></svg><svg class="ico"><use href="#i-food"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Арасияма · Кинкаку-дзи · Тофукудзи · Гион</h3>
-<span class="tag">Арасияма</span><span class="tag">Бамбук</span><span class="tag">Золотой павильон</span><span class="tag">Тофукудзи</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:00–6:30. Выезд к 7:00 — бамбуковая роща до 8:30 практически пуста.</div>
+<span class="tag">Арасияма</span><span class="tag">Бамбук</span><span class="tag">Кинкаку</span><span class="tag">Тофукудзи</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:00–6:30. Выезд к 7:00.</div>
 <p><strong>07:30–11:00 · Арасияма</strong></p>
 <ul>
-<li><strong>Бамбуковая роща</strong> — Sagatenryuji Tateishicho, Ukyo Ward. Открыта <strong>24/7</strong>, бесплатно. Лучшее время — до 8:30 утра.</li>
-<li><strong>Храм Тенрюдзи</strong> — 68 Sagatenryuji Susukinobabacho. 8:30–17:00. ¥500. Сад с прудом Согэн.</li>
-<li><strong>Парк обезьян Иватаяма</strong> — 61 Arashiyama Nakaoshita-cho. 9:00–16:30. ¥600. Подъём 15–20 минут, панорама Киото.</li>
+<li><strong>Бамбуковая роща</strong> — 24/7, бесплатно.</li>
+<li><strong>Храм Тенрюдзи</strong> — 8:30–17:00. ¥500.</li>
+<li><strong>Парк обезьян Иватаяма</strong> — 9:00–16:30. ¥600.</li>
 </ul>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Sotetsu+Fresa+Inn+Kyoto+Kiyomizu+Gojo&destination=Arashiyama+Bamboo+Grove&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Арасиямы</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Tenryu-ji+Temple+Arashiyama" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Храм Тенрюдзи</a>
 <div class="food">
 <strong><svg class="ico"><use href="#i-food"/></svg> Обед в Арасияме:</strong>
 <ul>
-<li><strong>Сёрайан (松籟庵)</strong> — тофу-кайсэки с видом на реку. ¥4,000–8,000.</li>
-<li><strong>Арасияма Ёсимура</strong> — соба с видом на мост Тогэцукё. ¥1,500–2,500.</li>
-<li><strong>Уличная еда:</strong> мороженое с матча, колбаски из вагю, рисовые крекеры.</li>
+<li><strong>Сёрайан</strong> — тофу-кайсэки, ¥4,000–8,000.</li>
+<li><strong>Арасияма Ёсимура</strong> — соба, ¥1,500–2,500.</li>
 </ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Shoraian+Arashiyama+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Сёрайан</a>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Arashiyama+Yoshimura+Soba" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Ёсимура</a>
 </div>
-<p><strong>12:00–13:30 · Кинкаку-дзи (Золотой павильон)</strong></p>
-<ul>
-<li>Адрес: 1 Kinkakujicho, Kita Ward. Часы: <strong>9:00–17:00</strong>. Вход: ¥400.</li>
-<li>Храм, покрытый золотыми листами, отражается в пруду.</li>
-</ul>
+<p><strong>12:00–13:30 · Кинкаку-дзи.</strong> 1 Kinkakujicho. 9:00–17:00. ¥400.</p>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Arashiyama+Bamboo+Grove&destination=Kinkaku-ji&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Кинкаку-дзи</a>
-<p><strong>14:00–16:00 · Тофукудзи</strong></p>
-<ul>
-<li>Адрес: 15-778 Honmachi, Higashiyama Ward. <strong>9:00–16:00</strong> (последний вход 15:30). Вход: ¥600 (мост Цутэнкё) + ¥400 (сад).</li>
-<li>Знаменит мостом Цутэнкё, под которым простирается ущелье с тысячами клёнов — один из лучших видов момидзи в Киото.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Kinkaku-ji&destination=Tofuku-ji+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Тофукудзи</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Tofuku-ji+Temple+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Тофукудзи</a>
-<p><strong>17:00–20:00 · Гион</strong></p>
-<ul>
-<li>Прогулка по историческому кварталу гейш.</li>
-<li><strong>Храм Ясака (Ясака-дзиндзя)</strong> — 625 Gionmachi Kitagawa. Открыт 24/7, бесплатно.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Tofuku-ji+Kyoto&destination=Gion+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Гиона</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Yasaka+Shrine+Gion" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Храм Ясака</a>
+<p><strong>14:00–16:00 · Тофукудзи.</strong> 15-778 Honmachi. 9:00–16:00. ¥600+¥400. Мост Цутэнкё над ущельем клёнов.</p>
+<p><strong>17:00–20:00 · Гион.</strong> Квартал гейш, храм Ясака (24/7).</p>
+<a class="map-btn href="https://www.google.com/maps/search/?api=1&query=Yasaka+Shrine+Gion" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Храм Ясака</a>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Arashiyama+Bamboo+Grove&z=13&output=embed"></iframe>
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 2 — Арасияма и запад Киото</div>
 <div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
 <ul>
-<li>Замените Арасияму на: <em>Замок Нидзё</em> (541 Nijojocho, Nakagyo Ward, 8:45–17:00, ¥800).</li>
-<li>Вместо Кинкаку-дзи: <em>Рёан-дзи</em> (сад камней) — крытая веранда.</li>
-<li>Вместо Тофукудзи: <em>Нандзэн-дзи</em> — акведук и сад, крытые галереи.</li>
+<li>Замок Нидзё, Рёан-дзи, Нандзэн-дзи.</li>
 </ul>
 </div>
 </div>
@@ -733,57 +724,31 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-torii"/></svg><svg class="ico"><use href="#i-maple"/></svg><svg class="ico"><use href="#i-food"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Фусими Инари · Эйкандо · Рынок Нисики</h3>
-<span class="tag">Фусими Инари</span><span class="tag">Эйкандо</span><span class="tag">Нисики</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:00. Выезд к 6:30 — Фусими Инари до 8:00 практически безлюден.</div>
-<p><strong>06:30–09:30 · Фусими Инари Тайся</strong></p>
-<ul>
-<li>Адрес: 68 Fukakusa Yabunouchicho, Fushimi Ward. Открыто <strong>24/7</strong>, вход бесплатный.</li>
-<li>Тысячи алых торий, туннели по склону горы Инари. Подъём до смотровой площадки Ёцуцудзи — 30–40 минут.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Sotetsu+Fresa+Inn+Kyoto+Kiyomizu+Gojo&destination=Fushimi+Inari+Taisha&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Фусими Инари</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Fushimi+Inari+Taisha" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Фусими Инари</a>
-<p><strong>10:00–12:00 · Эйкандо (Дзэнрин-дзи)</strong></p>
-<ul>
-<li>Адрес: 48 Eikandocho, Sakyo Ward. 9:00–17:00. Вход: ¥600. В сезон момидзи — вечерняя подсветка до 20:30.</li>
-<li>Один из лучших храмов для момидзи в Киото. Сад с прудом, пагода Тахото.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Fushimi+Inari+Taisha&destination=Eikando+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Эйкандо</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Eikando+Zenrin-ji+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Эйкандо</a>
+<span class="tag">Фусими</span><span class="tag">Эйкандо</span><span class="tag">Нисики</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:00. Выезд к 6:30.</div>
+<p><strong>06:30–09:30 · Фусими Инари Тайся.</strong> 24/7, бесплатно. Тысячи алых торий.</p>
+<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Sotetsu+Fresa+Inn+Kyoto+Kiyomizu+Gojo&destination=Fushimi+Inari+Taisha&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Фусими</a>
+<p><strong>10:00–12:00 · Эйкандо.</strong> 48 Eikandocho. 9:00–17:00. ¥600.</p>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Обед в районе Эйкандо:</strong>
+<strong><svg class="ico"><use href="#i-food"/></svg> Обед:</strong>
 <ul>
-<li><strong>Хинами</strong> — вегетарианский сёдзин-рёри (монашеская кухня). ¥2,500–4,000. Рядом с Эйкандо.</li>
-<li><strong>Омэн</strong> — знаменитый ресторан удона. ¥1,200–2,000. Рядом с Нандзэн-дзи.</li>
+<li><strong>Хинами</strong> — сёдзин-рёри, ¥2,500–4,000.</li>
+<li><strong>Омэн</strong> — удон, ¥1,200–2,000.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Omen+Nanzenji+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Омэн</a>
 </div>
-<p><strong>13:00–15:00 · Рынок Нисики</strong></p>
-<ul>
-<li>Адрес: Nishikikoji-dori, Nakagyo Ward. Часы: <strong>10:00–18:00</strong>. Многие магазины закрыты по средам или воскресеньям.</li>
-<li>Узкая крытая улица 390 метров с более чем 120 магазинами. «Кухня Киото».</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Eikando+Kyoto&destination=Nishiki+Market+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до рынка Нисики</a>
+<p><strong>13:00–15:00 · Рынок Нисики.</strong> 10:00–18:00. Крытая улица 390 м.</p>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Что попробовать на рынке Нисики:</strong>
+<strong><svg class="ico"><use href="#i-food"/></svg> На Нисики:</strong>
 <ul>
-<li><strong>Тамагояки</strong> — киотский рулет из яиц с бульоном даси. <em>Miki Keiran</em> (с 1928).</li>
-<li><strong>Такояки с яйцом перепела</strong> — около ¥400.</li>
-<li><strong>Юба</strong> — кожица соевого молока.</li>
-<li><strong>Пончики из соевого молока</strong> — <em>Konnamonja</em>. ¥300.</li>
-<li><strong>Сакура-мандзю</strong> — паровая булочка с бобовой пастой. <em>Fuka</em>.</li>
+<li><strong>Тамагояки</strong> — <em>Miki Keiran</em>, ¥200–500.</li>
+<li><strong>Пончики из соевого молока</strong> — <em>Konnamonja</em>, ¥300.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Nishiki+Market+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Нисики</a>
 </div>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Fushimi+Inari+Taisha&z=13&output=embed"></iframe>
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 3 — Фусими Инари и Эйкандо</div>
-<div class="warning"><strong>Важно:</strong> на рынке Нисики <strong>запрещено есть на ходу</strong>. Ешьте у прилавка или в специально отведённых местах.</div>
-<div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li>Фусими Инари под дождём — тории блестят, людей мало.</li>
-<li>Эйкандо — крытые галереи.</li>
-<li>Альтернатива: <em>Киотский национальный музей</em>, <em>Музей манги</em>.</li>
-</ul>
-</div>
+<div class="warning"><strong>Важно:</strong> на рынке Нисики <strong>нельзя есть на ходу</strong>.</div>
 </div>
 </div>
 </div>
@@ -796,27 +761,26 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-train"/></svg><svg class="ico"><use href="#i-castle"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Отъезд в Осаку</h3>
-<span class="tag">Переезд</span><span class="tag">Осака</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд из отеля к 9:00–9:30.</div>
-<p><strong>Утро:</strong> Выезд из отеля Sotetsu Fresa Inn Kyoto-Kiyomizu Gojo.</p>
-<p><strong>Переезд в Осаку:</strong> поезд JR Special Rapid от станции Киото до станции Осака (около 30 минут, ¥560).</p>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Kyoto+Station&destination=Osaka+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут Киото → Осака</a>
-<p><strong>Прибытие в Осаку:</strong> заселение в <strong>Henn na Hotel Osaka Namba</strong>.</p>
-<p><strong>Днём:</strong> замок Осака, парк Миноо (подробности — в маршруте по Осаке).</p>
-<p><strong>Вечер:</strong> Дотонбори, ужин.</p>
+<span class="tag">Переезд</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00.</div>
+<p>JR Special Rapid Киото → Осака (30 мин, ¥560). Заселение в <strong>Henn na Hotel Osaka Namba</strong>.</p>
+<p>Днём: замок Осака, парк Миноо. Вечером: Дотонбори.</p>
 </div>
 </div>
 </div>
 
-<h2><svg class="ico ico-lg"><use href="#i-food"/></svg>Киото · Питание</h2>
-<div class="food-block fade-card">
-<div class="food-item"><div class="food-emoji">🍲</div><div class="food-info"><div class="food-name">Юдофу</div><div class="food-desc">Варёный тофу в бульоне комбу · Хигасияма</div></div><div class="food-price">¥1,500–3,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Yudofu+Higashiyama+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🥢</div><div class="food-info"><div class="food-name">О-бадзай</div><div class="food-desc">Киотские закуски · изакаи в Гионе</div></div><div class="food-price">¥2,500–4,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Obanzai+Gion+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<h2 class="collapsible" data-target="kyoto-food" onclick="toggleSection(this)">
+<svg class="ico ico-lg"><use href="#i-food"/></svg>Киото · Питание
+<svg class="ico section-chevron"><use href="#i-chevron"/></svg>
+</h2>
+<div class="food-block fade-card" id="kyoto-food">
+<div class="food-item"><div class="food-emoji">🍲</div><div class="food-info"><div class="food-name">Юдофу</div><div class="food-desc">Варёный тофу · Хигасияма</div></div><div class="food-price">¥1,500–3,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Yudofu+Higashiyama+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🥢</div><div class="food-info"><div class="food-name">О-бадзай</div><div class="food-desc">Киотские закуски · Гион</div></div><div class="food-price">¥2,500–4,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Obanzai+Gion+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍜</div><div class="food-info"><div class="food-name">Удон</div><div class="food-desc">Omen · рядом с Нандзэн-дзи</div></div><div class="food-price">¥1,200–2,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Omen+Nanzenji+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🍳</div><div class="food-info"><div class="food-name">Тамагояки</div><div class="food-desc">Рулет из яиц с даси · Miki Keiran (Нисики)</div></div><div class="food-price">¥200–500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Miki+Keiran+Nishiki+Market" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🍩</div><div class="food-info"><div class="food-name">Пончики из соевого молока</div><div class="food-desc">Konnamonja · хрустящие снаружи</div></div><div class="food-price">¥300–500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Konnamonja+Nishiki+Market" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🍵</div><div class="food-info"><div class="food-name">Кайсэки</div><div class="food-desc">Многоблюдный ужин · Gion Karyo (бронь)</div></div><div class="food-price">¥8,000–15,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Gion+Karyo+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🥗</div><div class="food-info"><div class="food-name">Сёдзин-рёри</div><div class="food-desc">Вегетарианская монашеская кухня · Хинами</div></div><div class="food-price">¥2,500–4,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Shojin+Ryori+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🍳</div><div class="food-info"><div class="food-name">Тамагояки</div><div class="food-desc">Miki Keiran · Нисики</div></div><div class="food-price">¥200–500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Miki+Keiran+Nishiki" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🍩</div><div class="food-info"><div class="food-name">Пончики из соевого молока</div><div class="food-desc">Konnamonja</div></div><div class="food-price">¥300–500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Konnamonja+Nishiki" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🍵</div><div class="food-info"><div class="food-name">Кайсэки</div><div class="food-desc">Gion Karyo (бронь)</div></div><div class="food-price">¥8,000–15,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Gion+Karyo+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🥗</div><div class="food-info"><div class="food-name">Сёдзин-рёри</div><div class="food-desc">Вегетарианская кухня · Хинами</div></div><div class="food-price">¥2,500–4,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Shojin+Ryori+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 </div>
 
 </section>
@@ -828,14 +792,15 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="card fade-card">
 <div style="font-size:.9rem;line-height:1.6">
 <strong>Henn na Hotel Osaka Namba</strong><br>
-2-10-16 Nishishinsaibashi, Chuo Ward, Osaka 542-0086<br>
+<span id="addr-osaka">2-10-16 Nishishinsaibashi, Chuo Ward, Osaka 542-0086</span>
+<button class="copy-btn" onclick="copyAddr('addr-osaka', this)"><svg class="ico"><use href="#i-copy"/></svg>Копировать</button><br>
 Станция Namba / Shinsaibashi — 5–7 мин<br>
 <strong>25.11 – 30.11</strong> · 5 ночей
 </div>
 <div style="margin-top:10px">
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Henn+na+Hotel+Osaka+Namba" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Отель на карте</a>
 </div>
-<div class="tip"><strong>Почему Намба:</strong> сердце Осаки — отсюда пешком до Дотонбори (5 минут), улицы Синсайбаси и рынка Куромон. Удобные прямые поезда до Нары, Кобэ и Химэдзи.</div>
+<div class="tip"><strong>Почему Намба:</strong> 5 минут до Дотонбори, Куромона. Прямые поезда до Нары, Кобэ, Химэдзи.</div>
 </div>
 
 <h2><svg class="ico ico-lg"><use href="#i-route"/></svg>Осака · Маршрут</h2>
@@ -848,61 +813,38 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-castle"/></svg><svg class="ico"><use href="#i-maple"/></svg><svg class="ico"><use href="#i-night"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Переезд из Киото, замок Осака, парк Миноо</h3>
-<span class="tag">Переезд</span><span class="tag">Замок Осака</span><span class="tag">Миноо</span><span class="tag">Дотонбори</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд из Киото к 9:00–9:30, чтобы к полудню быть в Осаке.</div>
-<p><strong>Утро:</strong> Переезд из Киото в Осаку (JR Special Rapid, 30 мин, ¥560). Заселение в <strong>Henn na Hotel Osaka Namba</strong>.</p>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Kyoto+Station&destination=Henn+na+Hotel+Osaka+Namba&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут Киото → отель</a>
+<span class="tag">Замок</span><span class="tag">Миноо</span><span class="tag">Дотонбори</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00.</div>
+<p><strong>Утро:</strong> Переезд из Киото в Осаку (30 мин, ¥560). Заселение.</p>
 <p><strong>12:00–14:00 · Замок Осака</strong></p>
 <ul>
-<li>Адрес: 1-1 Osakajo, Chuo Ward, Osaka 540-0002.</li>
-<li>Часы: <strong>9:00–17:00</strong> (последний вход 16:30). Вход в музей замка: ¥600.</li>
-<li>Парк вокруг замка — бесплатный, открыт 24/7. В ноябре клёны в парке Nishinomaru Garden (¥200, 9:00–17:00).</li>
+<li>Адрес: <span id="addr-osakacastle">1-1 Osakajo, Chuo Ward, Osaka 540-0002</span><button class="copy-btn" onclick="copyAddr('addr-osakacastle', this)"><svg class="ico"><use href="#i-copy"/></svg></button></li>
+<li>9:00–17:00 (последний вход 16:30). Вход: ¥600.</li>
+<li>Парк вокруг замка — бесплатный. В ноябре клёны в парке Nishinomaru Garden (¥200).</li>
 </ul>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Osaka+Castle&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до замка Осака</a>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Osaka+Castle" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Замок Осака</a>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Обед в районе замка Осака:</strong>
-<ul>
-<li><strong>Окономияки</strong> — «японская пицца» из капусты, муки, яйца и начинки. Фирменное блюдо Осаки. <em>Okonomiyaki Mizuno</em> в Дотонбори (Michelin Bib Gourmand, ¥1,500–2,500).</li>
-<li><strong>Дзё-окуномияки</strong> — вариант, популярный в районе замка.</li>
-</ul>
+<strong><svg class="ico"><use href="#i-food"/></svg> Обед:</strong>
+<ul><li><strong>Окономияки</strong> — <em>Mizuno</em> (Michelin Bib, ¥1,500–2,500).</li></ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Mizuno+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Mizuno</a>
 </div>
-<p><strong>15:00–17:30 · Парк Миноо (водопады и момидзи)</strong></p>
-<ul>
-<li>Адрес: Minoo Park, Minoo City, Osaka 562-0002. Парк открыт 24/7, бесплатный.</li>
-<li>Водопад Мэото — 40 минут пешком от станции Minoo (Hankyu Minoo Line).</li>
-<li>Пик момидзи — конец ноября. По дороге к водопаду — <strong>жареные кленовые листья (момидзи-но тэмпура)</strong>, уникальный местный деликатес. ¥200–400.</li>
-</ul>
+<p><strong>15:00–17:30 · Парк Миноо.</strong> 24/7, бесплатно. Водопад — 40 мин. Момидзи-но тэмпура, ¥200–400.</p>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Minoo+Park&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до парка Миноо</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Minoo+Park+Waterfall+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Парк Миноо</a>
-<p><strong>18:30–22:00 · Дотонбори (вечер)</strong></p>
-<ul>
-<li>Адрес: Dotonbori, Chuo Ward, Osaka 542-0071.</li>
-<li>Знаменитая набережная с неоновыми вывесками (Glico Running Man). Работает круглосуточно, рестораны до 23:00.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Dotonbori&travelmode=walking" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Дотонбори</a>
+<p><strong>18:30–22:00 · Дотонбори.</strong> Неон, Glico Running Man.</p>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Ужин в Дотонбори:</strong>
+<strong><svg class="ico"><use href="#i-food"/></svg> Ужин:</strong>
 <ul>
-<li><strong>Такояки</strong> — шарики из теста с осьминогом. <em>Takoyaki Wanaka</em>, <em>Kukuru</em>. ¥500–700.</li>
-<li><strong>Окономияки</strong> — <em>Mizuno</em>, <em>Chibo</em>. ¥1,500–2,500.</li>
-<li><strong>Кусикацу</strong> — жареные шпажки. <em>Daruma</em>. Соус общий — макать дважды нельзя. ¥1,500–2,500.</li>
-<li><strong>Крабы</strong> — <em>Kani Doraku</em>. ¥4,000–8,000.</li>
-<li><strong>Никуман</strong> — паровая булочка со свининой. <em>551 Horai</em>. ¥180.</li>
+<li><strong>Такояки</strong> — <em>Wanaka</em>, ¥500–700.</li>
+<li><strong>Кусикацу</strong> — <em>Daruma</em>, ¥1,500–2,500.</li>
+<li><strong>Никуман</strong> — <em>551 Horai</em>, ¥180.</li>
 </ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Takoyaki+Wanaka+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Takoyaki</a>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kushikatsu+Daruma+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Daruma</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=551+Horai+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>551 Horai</a>
 </div>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Osaka+Castle&z=12&output=embed"></iframe>
-<div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 1 — Осака: замок, Миноо, Дотонбори</div>
+<div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 1 — Осака</div>
 <div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li><em>Osaka Aquarium Kaiyukan</em> (1-1-10 Kaigandori) — 10:00–20:00, ¥2,700. Полностью крытый.</li>
-<li><em>Osaka Museum of History</em> — 9:30–17:00, ¥600.</li>
-<li><em>Umeda Sky Building</em> — 9:30–22:30, ¥1,500.</li>
-</ul>
+<ul><li><em>Kaiyukan</em>, <em>Osaka Museum of History</em>, <em>Umeda Sky</em>.</li></ul>
 </div>
 </div>
 </div>
@@ -916,61 +858,23 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-deer"/></svg><svg class="ico"><use href="#i-torii"/></svg><svg class="ico"><use href="#i-maple"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Нара (день)</h3>
-<span class="tag">Нара</span><span class="tag">Олени</span><span class="tag">Тодай-дзи</span><span class="tag">Касуга-тайся</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 8:00 — в Наре до 10:00 ещё спокойно.</div>
-<p><strong>08:00–09:00 · Переезд в Нару</strong></p>
-<ul>
-<li>Из Намбы: <strong>Kintetsu Nara Line</strong> от станции Osaka-Namba до Kintetsu-Nara — 35–45 минут, ¥580 (обычный) / ¥1,290 (Limited Express).</li>
-<li>Альтернатива: JR Yamatoji Line от JR Namba до JR Nara — 45 минут, ¥580.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Kintetsu+Nara+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Нары</a>
-<p><strong>09:30–11:00 · Парк Нара</strong></p>
-<ul>
-<li>Адрес: Zoshicho, Nara 630-8211. Открыт 24/7, бесплатно.</li>
-<li>Более 1,200 диких оленей. Продаются специальные крекеры <em>сика-сэмбэй</em> (¥200) — можно покормить. Олени кланяются, если поклониться им.</li>
-<li>В ноябре парк в клёнах — очень красиво.</li>
-</ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Kintetsu+Nara+Station&destination=Nara+Park&travelmode=walking" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до парка Нара</a>
-<p><strong>11:00–12:30 · Тодай-дзи (Великий Будда)</strong></p>
-<ul>
-<li>Адрес: 406-1 Zoshicho, Nara 630-8211.</li>
-<li>Часы: <strong>7:30–17:30</strong> (апрель–октябрь), <strong>8:00–17:00</strong> (ноябрь–март). Вход: ¥600.</li>
-<li>Один из крупнейших деревянных храмов мира. Внутри — 15-метровая бронзовая статуя Будды.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Todai-ji+Temple+Nara" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Тодай-дзи</a>
+<span class="tag">Нара</span><span class="tag">Олени</span><span class="tag">Тодай-дзи</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 8:00.</div>
+<p>Kintetsu Nara Line от Osaka-Namba — 35–45 мин, ¥580.</p>
+<p><strong>09:30–11:00 · Парк Нара.</strong> 1,200+ оленей. Кре́керы <em>сика-сэмбэй</em> ¥200.</p>
+<p><strong>11:00–12:30 · Тодай-дзи.</strong> <span id="addr-todaiji">406-1 Zoshicho, Nara 630-8211</span><button class="copy-btn" onclick="copyAddr('addr-todaiji', this)"><svg class="ico"><use href="#i-copy"/></svg></button> 7:30–17:30 (ноя 8:00–17:00). ¥600.</p>
+<p><strong>13:00–14:30 · Касуга-тайся.</strong> 6:30–17:30. Бесплатно.</p>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Обед в Наре:</strong>
+<strong><svg class="ico"><use href="#i-food"/></svg> Обед:</strong>
 <ul>
-<li><strong>Каки-но-ха-дзуси</strong> — суши, завёрнутое в листья хурмы. ¥1,000–1,800.</li>
-<li><strong>Нару-дзару</strong> — гречневая лапша с местными овощами.</li>
-<li><strong>Мандзю с мисо</strong> — сладкая паровая булочка на гриле. Уличная еда.</li>
-<li><em>Nakatanidou</em> (29 Hashimotocho, Nara) — знаменитый магазин моти с мисо. Свежее моти делают при вас. ¥150–200.</li>
+<li><strong>Каки-но-ха-дзуси</strong> — ¥1,000–1,800.</li>
+<li><em>Nakatanidou</em> — моти с мисо, ¥150–200.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Nakatanidou+Nara" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Nakatanidou</a>
 </div>
-<p><strong>13:00–14:30 · Касуга-тайся</strong></p>
-<ul>
-<li>Адрес: 160 Kasuganocho, Nara 630-8212.</li>
-<li>Часы: <strong>6:30–17:30</strong> (ноябрь–март — до 17:00). Вход бесплатный (внутренний сад ¥500).</li>
-<li>Святилище с тысячами бронзовых и каменных фонарей.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kasuga+Taisha+Shrine+Nara" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Касуга-тайся</a>
-<p><strong>15:00–17:00 · Возвращение в Осаку.</strong></p>
-<p><strong>18:00–21:00 · Вечер в Синсайбаси</strong></p>
-<ul>
-<li>Адрес: Shinsaibashisuji, Chuo Ward, Osaka 542-0085.</li>
-<li>Крытая торговая улица длиной 600 м — от Дотонбори до района Нагори. Магазины работают до 21:00, рестораны до 23:00.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Shinsaibashisuji+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Синсайбаси</a>
+<p>Вечером — Синсайбаси (600 м, магазины до 21:00).</p>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Nara+Park&z=13&output=embed"></iframe>
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 2 — Нара</div>
-<div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li>В Наре: <em>Nara National Museum</em> (50 Noboriojicho), <em>Isuien Garden</em> и <em>Neiraku Museum</em> — сад с чайным домиком, крытая галерея.</li>
-<li>Храм <em>Kofuku-ji</em> — трёхэтажная пагода, есть крытые помещения.</li>
-<li>В Осаке: <em>Osaka Museum of Housing and Living</em> — реконструкция улиц Осаки эпохи Эдо. ¥600.</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
@@ -982,49 +886,23 @@ p{font-size:.9rem;margin-bottom:8px}
 </div>
 <div class="day-stickers"><svg class="ico"><use href="#i-castle"/></svg><svg class="ico"><use href="#i-maple"/></svg><svg class="ico"><use href="#i-food"/></svg></div>
 <div class="day-body">
-<div class="day-title"><h3>Химэдзи (замок ЮНЕСКО)</h3>
-<span class="tag">Замок Химэдзи</span><span class="tag">Сад Коко-эн</span><span class="tag">ЮНЕСКО</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 8:00 — Химэдзи в 20 минутах ходьбы от станции.</div>
-<p><strong>08:00–09:15 · Переезд в Химэдзи</strong></p>
-<ul>
-<li><strong>JR Special Rapid</strong> (линия JR Kobe Line) от станции Осака до станции Химэдзи — около 1 часа, ¥1,490.</li>
-<li>Альтернатива (быстрее, дороже): синкансэн Sanyo от Син-Осака до Химэдзи — 30 минут, ¥3,220.</li>
-</ul>
+<div class="day-title"><h3>Химэдзи — замок ЮНЕСКО</h3>
+<span class="tag">Химэдзи</span><span class="tag">Коко-эн</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00. Выезд к 8:00.</div>
+<p>JR Special Rapid Осака → Химэдзи (1 ч, ¥1,490).</p>
+<p><strong>09:30–12:30 · Замок Химэдзи.</strong> <span id="addr-himeji">68 Honmachi, Himeji, Hyogo 670-0012</span><button class="copy-btn" onclick="copyAddr('addr-himeji', this)"><svg class="ico"><use href="#i-copy"/></svg></button> 9:00–17:00. ¥1,000 / ¥1,050 с садом.</p>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Himeji+Castle&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Химэдзи</a>
-<p><strong>09:30–12:30 · Замок Химэдзи</strong></p>
-<ul>
-<li>Адрес: 68 Honmachi, Himeji, Hyogo 670-0012.</li>
-<li>Часы: <strong>9:00–17:00</strong> (последний вход 16:00). Вход: ¥1,000 (замок) / ¥1,050 (замок + сад Коко-эн).</li>
-<li>Один из <strong>немногих сохранившихся оригинальных замков</strong> Японии, объект ЮНЕСКО. Называется «Белой цаплей». В сезон момидзи — изумительно.</li>
-<li>Внутри — 6 этажей деревянных лестниц. Подъём на верхний ярус — панорама города.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Himeji+Castle" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Замок Химэдзи</a>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Обед в Химэдзи:</strong>
+<strong><svg class="ico"><use href="#i-food"/></svg> Обед:</strong>
 <ul>
-<li><strong>Химэдзи-окономияки</strong> — местная вариация с говядиной и яйцом.</li>
-<li><strong>Анаго-мэси</strong> — рис с жареной морской щукой (анаго). Фирменное блюдо Химэдзи. ¥2,000–3,500.</li>
-<li><strong>Сёю-рамен</strong> — местный вариант рамэна с тонким вкусом. ¥800–1,200.</li>
+<li><strong>Анаго-мэси</strong> — рис с морской щукой, ¥2,000–3,500.</li>
+<li><strong>Химэдзи-окономияки</strong> — ¥1,200–2,000.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Anago+Meshi+Himeji" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Анаго-мэси</a>
 </div>
-<p><strong>13:00–14:30 · Сад Коко-эн</strong></p>
-<ul>
-<li>Адрес: 68 Honmachi, Himeji, Hyogo 670-0012.</li>
-<li>Часы: <strong>9:00–17:00</strong>. Вход: ¥300 (или комбо с замком за ¥1,050).</li>
-<li>Традиционный японский сад в стиле эпохи Эдо, разделён на 9 зон. Клёны в конце ноября — яркие. Отличный вид на замок.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kokoen+Garden+Himeji" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Сад Коко-эн</a>
-<p><strong>15:30–17:00 · Возвращение в Осаку.</strong> Ужин в Намбе / Дотонбори.</p>
+<p><strong>13:00–14:30 · Сад Коко-эн.</strong> 9:00–17:00, ¥300.</p>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Himeji+Castle&z=14&output=embed"></iframe>
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 3 — Химэдзи</div>
-<div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li>Замок Химэдзи — часть маршрута внутри, но двор открытый.</li>
-<li>Альтернатива: остаться в Осаке. <em>Osaka Museum of History</em> — панорамный вид на замок.</li>
-<li><em>Grand Front Osaka</em>, <em>Hankyu Umeda</em>, <em>Hanshin Umeda</em> — универмаги с depachika.</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
@@ -1037,56 +915,29 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-fish"/></svg><svg class="ico"><use href="#i-food"/></svg><svg class="ico"><use href="#i-city"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Свободный день: Кобэ или Осака</h3>
-<span class="tag">Кобэ</span><span class="tag">Кайюкан</span><span class="tag">Куромон</span><span class="tag">Отдых</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:30 (если едете в Кобэ) или 8:30–9:00 (если остаётесь в Осаке).</div>
-<div class="note"><strong>Это ваш гибкий день.</strong> Все обязательные точки по Осаке уже закрыты.</div>
-<h4>Вариант А: Кобэ (порт, мясо Кобе, панорама)</h4>
+<span class="tag">Кобэ</span><span class="tag">Куромон</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:30 / 8:30.</div>
+<h4>Вариант А · Кобэ</h4>
 <ul>
-<li><strong>Как добраться:</strong> Hanshin или Hankyu Line от станции Osaka-Umeda до Kobe-Sannomiya — около 30 минут, ¥320–420.</li>
-<li><strong>Район Китано-Идзинкан</strong> — квартал исторических европейских особняков на склоне. Бесплатно гулять, вход в отдельные дома ¥550–700.</li>
-<li><strong>Харборленд</strong> — портовая зона с колесом обозрения и торговым центром.</li>
-<li><strong>Гора Рокко</strong> — канатная дорога и панорама Кобэ (одна из трёх лучших ночных панорам Японии).</li>
-<li><strong>Нанкинмати</strong> — Чайнатаун Кобэ, уличная еда.</li>
+<li>Hanshin/Hankyu от Osaka-Umeda — 30 мин, ¥320–420.</li>
+<li>Китано-Идзинкан, Харборленд, гора Рокко, Нанкинмати.</li>
 </ul>
 <a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Kobe+Sannomiya+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Кобэ</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kitano+Ijin-kan+Kobe" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Китано-Идзинкан</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Mount+Rokko+Kobe" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Гора Рокко</a>
 <div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Что попробовать в Кобэ:</strong>
-<ul>
-<li><strong>Кобэ-бёф (神戸ビーフ)</strong> — знаменитая мраморная говядина. Обед-сет в <em>Steakland Kobe</em> — от ¥3,000, ужин ¥8,000+. Оптимально брать сет на обед.</li>
-<li><strong>Кобэ-пудинг</strong> — местный десерт, продаётся повсюду.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Steakland+Kobe+Sannomiya" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Steakland Kobe</a>
+<strong><svg class="ico"><use href="#i-food"/></svg> Кобэ-бёф:</strong>
+<ul><li>Обед-сет в <em>Steakland Kobe</em> от ¥3,000.</li></ul>
+<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Steakland+Kobe+Sannomiya" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Steakland</a>
 </div>
-<h4>Вариант Б: Остаться в Осаке</h4>
+<h4>Вариант Б · Осака</h4>
 <ul>
-<li><strong>Рынок Куромон</strong> (2-4-1 Nipponbashi, Chuo Ward) — «кухня Осаки», улица 580 метров с морепродуктами, вагю, фруктами. Работает 8:00–17:00.</li>
-<li><strong>Аквариум Кайюкан</strong> (1-1-10 Kaigandori, Minato Ward) — один из крупнейших аквариумов мира. 10:00–20:00. Вход ¥2,700.</li>
-<li><strong>Umeda Sky Building</strong> (1-1-88 Oyodonaka, Kita Ward) — смотровая площадка Floating Garden. 9:30–22:30, вход ¥1,500.</li>
-<li><strong>Grand Front Osaka</strong> — шопинг и рестораны рядом с вокзалом.</li>
+<li><strong>Куромон</strong> (8:00–17:00) — вагю, хотатэ, уни, фугу.</li>
+<li><strong>Кайюкан</strong> (¥2,700), <strong>Umeda Sky</strong> (¥1,500).</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kuromon+Market+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Куромон</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Osaka+Aquarium+Kaiyukan" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Кайюкан</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Umeda+Sky+Building" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Umeda Sky</a>
-<div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Что попробовать на Куромоне:</strong>
-<ul>
-<li><strong>Вагю-якинику на гриле</strong> — мраморная говядина, жаренная на палочках. ¥1,000–2,000 за порцию.</li>
-<li><strong>Хотатэ (гребешки) на гриле</strong> — крупные, сладкие. ¥500–800.</li>
-<li><strong>Уни (морской ёж)</strong> — свежий, в сезон. ¥1,000–2,000.</li>
-<li><strong>Фугу</strong> — деликатес региона Кансай. Дегустационные сеты от ¥3,000.</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Kuromon+Ichiba+Market+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Куромон</a>
-</div>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Kuromon+Market+Osaka&z=13&output=embed"></iframe>
-<div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 4 — Куромон / Кобэ на выбор</div>
+<div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 4 — Куромон / Кобэ</div>
 <div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li>Кобэ: <em>Kobe Harborland umie</em> (крытый ТЦ), <em>Kobe Port Tower</em>.</li>
-<li>Осака: <em>Grand Front Osaka</em>, <em>Hankyu Umeda</em>, <em>Hanshin Umeda</em>.</li>
-<li>Онсэн: <em>Spa World</em> (3-4-24 Ebisucho, Naniwa Ward) — огромный тематический комплекс с горячими источниками. ¥1,500–2,400.</li>
-</ul>
+<ul><li><em>Spa World</em>, <em>Umeda Underground Mall</em>.</li></ul>
 </div>
 </div>
 </div>
@@ -1100,43 +951,20 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-torii"/></svg><svg class="ico"><use href="#i-maple"/></svg><svg class="ico"><use href="#i-shop"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Киото или повтор в Осаке</h3>
-<span class="tag">Гибкий день</span><span class="tag">Гинкаку-дзи</span><span class="tag">Америка-мура</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00 (если едете в Киото) или 8:30 (если остаётесь в Осаке).</div>
-<h4>Вариант А: Поездка в Киото (40 мин на JR Special Rapid)</h4>
+<span class="tag">Гинкаку-дзи</span><span class="tag">Америка-мура</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 7:00 / 8:30.</div>
+<h4>Вариант А · Киото</h4>
 <ul>
-<li><strong>Гинкаку-дзи (Серебряный павильон)</strong> — 2 Ginkakujicho, Sakyo Ward. 8:30–17:00. Вход ¥500.</li>
-<li><strong>Философская тропа</strong> — 2 км вдоль канала, клёны в сезон. Бесплатно.</li>
-<li><strong>Нандзэн-дзи</strong> — акведук и сад. Вход ¥600.</li>
-<li><strong>Хэйан-дзингу</strong> — святилище с огромными воротами. Вход бесплатный, сад ¥600.</li>
+<li><strong>Гинкаку-дзи</strong> (¥500), Философская тропа, Нандзэн-дзи.</li>
 </ul>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Osaka+Station&destination=Ginkaku-ji+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Гинкаку-дзи</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Philosopher%27s+Path+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Философская тропа</a>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Heian+Shrine+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Хэйан-дзингу</a>
-<div class="food">
-<strong><svg class="ico"><use href="#i-food"/></svg> Обед в Киото:</strong>
+<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Osaka+Station&destination=Ginkaku-ji+Kyoto&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>До Гинкаку</a>
+<h4>Вариант Б · Осака</h4>
 <ul>
-<li><em>Omen</em> — знаменитый удон рядом с Нандзэн-дзи, ¥1,200–2,000.</li>
-<li><em>Hyotei</em> — кайсэки, бронь заранее (3 звезды Michelin, от ¥20,000).</li>
-</ul>
-<a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=Omen+Nanzenji+Kyoto" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Omen</a>
-</div>
-<h4>Вариант Б: Остаться в Осаке</h4>
-<ul>
-<li><strong>Повторный визит в парк Миноо</strong> — если не были 25 ноября. Пик момидзи 20–30 ноября.</li>
-<li><strong>Синсайбаси</strong> и <strong>Синсайбаси-судзи</strong> — 600 метров крытых магазинов.</li>
-<li><strong>Америка-мура</strong> (1-6-14 Nishishinsaibashi, Chuo Ward) — квартал уличной моды, винтажных магазинов, кафе.</li>
-<li><strong>Ночной Дотонбори</strong> — финальный вечер с неоновой подсветкой.</li>
+<li>Повтор Миноо, Синсайбаси-судзи, Америка-мура, ночной Дотонбори.</li>
 </ul>
 <a class="map-btn" href="https://www.google.com/maps/search/?api=1&query=America+Mura+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>Америка-мура</a>
 <iframe class="map-frame" loading="lazy" src="https://maps.google.com/maps?q=Ginkaku-ji+Kyoto&z=13&output=embed"></iframe>
 <div class="map-cap"><svg class="ico"><use href="#i-pin"/></svg>День 5 — Гинкаку-дзи (опция)</div>
-<div class="rain"><strong><svg class="ico"><use href="#i-rain"/></svg> Если дождь:</strong>
-<ul>
-<li>Киото: <em>Kyoto National Museum</em>, <em>Kyoto International Manga Museum</em>.</li>
-<li>Осака: <em>Osaka Science Museum</em>, <em>National Museum of Art Osaka</em>.</li>
-<li>Крытый шопинг — <em>Shinsaibashi-suji</em>, <em>Umeda Underground Mall</em>.</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
@@ -1149,21 +977,20 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="day-stickers"><svg class="ico"><use href="#i-train"/></svg><svg class="ico"><use href="#i-city"/></svg></div>
 <div class="day-body">
 <div class="day-title"><h3>Отъезд в Токио</h3>
-<span class="tag">Синкансэн</span><span class="tag">Возвращение</span></div>
-<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:30–7:00. Выезд из отеля к 8:30, чтобы успеть на синкансэн до 10:00.</div>
-<p><strong>Утро:</strong> Выезд из отеля Henn na Hotel Osaka Namba.</p>
-<p><strong>До станции Син-Осака:</strong> метро Midosuji Line от Namba до Shin-Osaka — 20 минут, ¥290.</p>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Henn+na+Hotel+Osaka+Namba&destination=Shin-Osaka+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут до Син-Осака</a>
-<p><strong>Синкансэн до Токио:</strong> JR Shinkansen Hikari от Син-Осака до станции Токио — 2 ч 30 мин, ¥14,400. Резервируйте места заранее (правая сторона по ходу — вид на Фудзи).</p>
-<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Shin-Osaka+Station&destination=Tokyo+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>Маршрут Син-Осака → Токио</a>
-<p><strong>Прибытие в Токио:</strong> заселение в <strong>Ano Hotel Asakusa</strong>.</p>
-<p><strong>Вечер:</strong> прощальный вечер в Асакусе, сувениры.</p>
+<span class="tag">Синкансэн</span></div>
+<div class="wake"><strong><svg class="ico"><use href="#i-clock"/></svg> Подъём:</strong> 6:30–7:00.</div>
+<p>Metro Midosuji Line Namba → Shin-Osaka (20 мин, ¥290).</p>
+<p>Синкансэн Hikari Син-Осака → Токио — 2 ч 30 мин, ¥14,400.</p>
+<a class="map-btn route" href="https://www.google.com/maps/dir/?api=1&origin=Shin-Osaka+Station&destination=Tokyo+Station&travelmode=transit" target="_blank" rel="noopener"><svg class="ico"><use href="#i-route"/></svg>До Токио</a>
 </div>
 </div>
 </div>
 
-<h2><svg class="ico ico-lg"><use href="#i-food"/></svg>Осака · Питание</h2>
-<div class="food-block fade-card">
+<h2 class="collapsible" data-target="osaka-food" onclick="toggleSection(this)">
+<svg class="ico ico-lg"><use href="#i-food"/></svg>Осака · Питание
+<svg class="ico section-chevron"><use href="#i-chevron"/></svg>
+</h2>
+<div class="food-block fade-card" id="osaka-food">
 <div class="food-item"><div class="food-emoji">🐙</div><div class="food-info"><div class="food-name">Такояки</div><div class="food-desc">Шарики с осьминогом · Takoyaki Wanaka</div></div><div class="food-price">¥500–700</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Takoyaki+Wanaka+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🥞</div><div class="food-info"><div class="food-name">Окономияки</div><div class="food-desc">Mizuno (Michelin Bib)</div></div><div class="food-price">¥1,500–2,500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Okonomiyaki+Mizuno+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍢</div><div class="food-info"><div class="food-name">Кусикацу</div><div class="food-desc">Daruma · макать дважды нельзя</div></div><div class="food-price">¥1,500–2,500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Kushikatsu+Daruma+Dotonbori" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
@@ -1173,12 +1000,11 @@ p{font-size:.9rem;margin-bottom:8px}
 <div class="food-item"><div class="food-emoji">🐟</div><div class="food-info"><div class="food-name">Анаго-мэси</div><div class="food-desc">Рис с морской щукой · Химэдзи</div></div><div class="food-price">¥2,000–3,500</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Anago+Meshi+Himeji" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍣</div><div class="food-info"><div class="food-name">Каки-но-ха-дзуси</div><div class="food-desc">Суши в листьях хурмы · Нара</div></div><div class="food-price">¥1,000–1,800</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Kakinoha+Sushi+Nara" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 <div class="food-item"><div class="food-emoji">🍡</div><div class="food-info"><div class="food-name">Моти с мисо</div><div class="food-desc">Nakatanidou (Нара)</div></div><div class="food-price">¥150–200</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Nakatanidou+Nara" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
-<div class="food-item"><div class="food-emoji">🐟</div><div class="food-info"><div class="food-name">Вагю / уни / хотатэ</div><div class="food-desc">Уличная еда · рынок Куромон</div></div><div class="food-price">¥500–2,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Kuromon+Market+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
+<div class="food-item"><div class="food-emoji">🐟</div><div class="food-info"><div class="food-name">Вагю / уни / хотатэ</div><div class="food-desc">Рынок Куромон</div></div><div class="food-price">¥500–2,000</div><a class="food-map" href="https://www.google.com/maps/search/?api=1&query=Kuromon+Market+Osaka" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg></a></div>
 </div>
 
 </section>
 
-<!-- ЭКСТРЕННЫЕ КОНТАКТЫ -->
 <section class="sec-anchor" id="help">
 <h2><svg class="ico ico-lg"><use href="#i-shield"/></svg>Экстренные контакты</h2>
 <div class="card fade-card">
@@ -1213,11 +1039,11 @@ p{font-size:.9rem;margin-bottom:8px}
 </tr>
 <tr>
   <td>💴 Наличные</td>
-  <td>Многие места только за кэш. Держите при себе ¥10,000–20,000.</td>
+  <td>Многие места только за кэш. Держите ¥10,000–20,000.</td>
 </tr>
 <tr>
   <td>🎎 Этикет</td>
-  <td>На рынках нельзя есть на ходу. Чаевые не приняты. Тишина в поездах.</td>
+  <td>На рынках нельзя есть на ходу. Чаевые не приняты.</td>
 </tr>
 <tr>
   <td>🚆 Транспорт</td>
@@ -1239,6 +1065,8 @@ p{font-size:.9rem;margin-bottom:8px}
   <button onclick="location.reload()">Обновить</button>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const CITIES_INFO = {
   tokyo: {name:'Токио', emoji:'🗼', sub:'18–22 ноября и 30 ноября – 1 декабря 2026', badge:'Асакуса · Уэно · Сибуя · Такао'},
@@ -1249,6 +1077,20 @@ const CITIES_INFO = {
     sub:'25–30 ноября 2026 · 5 ночей',
     badge:'Замок Осака · Миноо · Нара · Химэдзи'
   }
+};
+
+/* Погода по городу */
+const CITY_WEATHER = {
+  tokyo: ['Токио'],
+  kyoto: ['Киото', 'Нара'],
+  osaka: ['Осака', 'Нара']
+};
+
+const CITIES_W = {
+  'Токио': {lat:35.6762, lon:139.6503},
+  'Киото': {lat:35.0116, lon:135.7681},
+  'Осака': {lat:34.6937, lon:135.5023},
+  'Нара':  {lat:34.6851, lon:135.8048}
 };
 
 const TRIP_DAYS = ['tokyo','tokyo','tokyo','tokyo','kyoto','kyoto','kyoto','osaka','osaka','osaka','osaka','osaka','tokyo','tokyo'];
@@ -1297,18 +1139,69 @@ function updateProgress(){
     else if(status === 'after') s.classList.add('passed');
   });
 
-  if(status === 'before'){
-    daysEl.textContent = `До старта: ${daysLeft}`;
-  } else if(status === 'after'){
-    daysEl.textContent = 'Завершено';
-  } else {
-    daysEl.textContent = `${daysLeft} дн.`;
-  }
+  if(status === 'before') daysEl.textContent = `До старта: ${daysLeft}`;
+  else if(status === 'after') daysEl.textContent = 'Завершено';
+  else daysEl.textContent = `${daysLeft} дн.`;
 }
 
 function toggleDay(btn){
   const day = btn.closest('.day');
   if(day) day.classList.toggle('collapsed');
+}
+
+function toggleSection(h2){
+  const targetId = h2.dataset.target;
+  const target = document.getElementById(targetId);
+  if(!target) return;
+  target.classList.toggle('collapsed');
+  h2.classList.toggle('collapsed');
+  // если разворачиваем — триггерим fade-in
+  if(!target.classList.contains('collapsed')){
+    target.classList.add('visible');
+  }
+}
+
+function copyAddr(id, btn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const text = el.textContent.trim();
+  const done = () => {
+    btn.classList.add('copied');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<svg class="ico"><use href="#i-check"/></svg>Скопировано';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = original;
+    }, 1800);
+    showToast('Адрес скопирован');
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){}
+      document.body.removeChild(ta);
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
 }
 
 function setCity(city){
@@ -1327,6 +1220,7 @@ function setCity(city){
   window.scrollTo({top:0, behavior:'smooth'});
   buildDayNav(city);
   initFade();
+  loadWeather(city);
 }
 
 document.querySelectorAll('.city-tabs button[data-city]').forEach(b => {
@@ -1371,7 +1265,7 @@ function goToday(){
       setCity(section.dataset.city);
       setTimeout(() => jump(el.id), 300);
     } else jump(el.id);
-  } else toast('Сегодня не день поездки');
+  } else showToast('Сегодня не день поездки');
 }
 
 function jump(id){
@@ -1391,13 +1285,7 @@ function markToday(){
   });
 }
 
-/* ============ ПОГОДА ============ */
-const CITIES_W = [
-  {name:'Токио', lat:35.6762, lon:139.6503},
-  {name:'Киото', lat:35.0116, lon:135.7681},
-  {name:'Осака', lat:34.6937, lon:135.5023},
-  {name:'Нара',  lat:34.6851, lon:135.8048}
-];
+/* ============ ПОГОДА — только по текущему городу ============ */
 const DAYS = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 
 function iconFor(code){
@@ -1430,9 +1318,17 @@ async function fetchWithTimeout(url, ms=8000){
   }
 }
 
-async function loadWeather(){
+async function loadWeather(city){
+  city = city || document.body.dataset.city || 'tokyo';
   const box = document.getElementById('weather');
+  const label = document.getElementById('weather-city-name');
   if(!box) return;
+
+  // Обновляем подпись в заголовке
+  const list = CITY_WEATHER[city] || ['Токио'];
+  if(label){
+    label.textContent = list.length === 1 ? `· ${list[0]}` : `· ${list.join(' и ')}`;
+  }
 
   if(!navigator.onLine){
     box.innerHTML = `<div class="weather-error">
@@ -1441,10 +1337,14 @@ async function loadWeather(){
     return;
   }
 
+  box.innerHTML = '<div class="weather-loading">Загружаем прогноз…</div>';
+
   let html = '';
   let anySuccess = false;
 
-  for(const c of CITIES_W){
+  for(const cityName of list){
+    const c = CITIES_W[cityName];
+    if(!c) continue;
     try{
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Asia%2FTokyo&forecast_days=5`;
       const d = await fetchWithTimeout(url, 8000);
@@ -1458,13 +1358,13 @@ async function loadWeather(){
         </div>`;
       }).join('');
       html += `<div class="weather-card">
-        <div class="city">${svgIcon('i-pin')} ${c.name}</div>
+        <div class="city">${svgIcon('i-pin')} ${cityName}</div>
         <div class="weather-days">${days}</div>
       </div>`;
       anySuccess = true;
     }catch(e){
       html += `<div class="weather-card">
-        <div class="city">${svgIcon('i-pin')} ${c.name}</div>
+        <div class="city">${svgIcon('i-pin')} ${cityName}</div>
         <div style="font-size:.75rem;color:#6b5b53;padding:6px 0">Нет данных</div>
       </div>`;
     }
@@ -1478,10 +1378,10 @@ async function loadWeather(){
     return;
   }
 
-  box.innerHTML = '<div class="weather-grid">' + html + '</div>';
+  const cls = list.length === 1 ? 'weather-grid single' : 'weather-grid';
+  box.innerHTML = `<div class="${cls}">${html}</div>`;
 }
 
-/* КЛЮЧЕВОЙ ФИКС: секции вне города тоже видны */
 function initFade(){
   const els = document.querySelectorAll('.fade-card:not(.visible)');
   if(!('IntersectionObserver' in window)){els.forEach(e => e.classList.add('visible'));return;}
@@ -1497,17 +1397,9 @@ async function shareIt(){
   const data = {title:'Япония 2026', text:'Токио → Киото → Осака · 18.11 – 01.12', url:location.href};
   try{
     if(navigator.share){ await navigator.share(data); }
-    else if(navigator.clipboard){ await navigator.clipboard.writeText(location.href); toast('Ссылка скопирована'); }
-    else toast('Скопируйте адрес');
+    else if(navigator.clipboard){ await navigator.clipboard.writeText(location.href); showToast('Ссылка скопирована'); }
+    else showToast('Скопируйте адрес');
   }catch(e){}
-}
-function toast(msg){
-  const t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:11px 18px;border-radius:22px;font-size:.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)';
-  document.body.appendChild(t);
-  setTimeout(() => {t.style.transition='opacity .3s';t.style.opacity='0';}, 1800);
-  setTimeout(() => t.remove(), 2200);
 }
 
 if('serviceWorker' in navigator){
@@ -1526,8 +1418,8 @@ if('serviceWorker' in navigator){
   });
 }
 
-window.addEventListener('online', loadWeather);
-window.addEventListener('offline', loadWeather);
+window.addEventListener('online', () => loadWeather());
+window.addEventListener('offline', () => loadWeather());
 
 (function init(){
   buildTrack();
