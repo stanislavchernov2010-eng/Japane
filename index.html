@@ -1372,9 +1372,23 @@ window.addEventListener('offline', loadWeather);
   initFade();
   initCopyButtons();
   initFoodCollapse();
+  fixHotelButtons();
   setInterval(() => { updateProgress(); markToday(); }, 3600000);
 })();
 </script>
-
+/* Исправление кнопок «В отель»: маршрут от текущего местоположения */
+function fixHotelButtons(){
+  document.querySelectorAll('a.hotel-btn').forEach(btn => {
+    if(btn.dataset.fixed) return;
+    try {
+      const url = new URL(btn.href);
+      // Убираем origin — Google Maps подставит текущее местоположение
+      url.searchParams.delete('origin');
+      // Убеждаемся, что destination и travelmode остались
+      btn.href = url.toString();
+      btn.dataset.fixed = '1';
+    } catch(e) { /* если URL некорректен — оставляем как есть */ }
+  });
+}
 </body>
 </html>
